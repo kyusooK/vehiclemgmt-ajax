@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>CarAssignment</title>
+        <script src="/common/plugins/ibsheet8/ibsheet.js"></script>
+        <script src="/common/plugins/ibsheet8/ibleaders.js"></script>
+        <link rel="stylesheet" type="text/css" href="/common/plugins/ibsheet8/css/default/main.css">
+        <script src="/common/plugins/ibsheet8/locale/ko.js"></script>
+        <script src="/common/plugins/jquery-3.4.1.js"></script>
+        <script src="/common/plugins/i18next.min.js"></script>
+        <script src="/common/js/CarAssignment.js"></script>
+        <style>
+            .modal {
+                display: none; 
+                position: fixed; 
+                z-index: 1; 
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+                background-color: rgb(0,0,0);
+                background-color: rgba(0,0,0,0.4);
+                padding-top: 60px;
+            }
+            .modal-content {
+                background-color: #fefefe;
+                margin: 5% auto;
+                padding: 20px;
+                border: 1px solid #888;
+                width: 80%;
+            }
+            .close {
+                color: #aaa;
+                float: right;
+                font-size: 28px;
+                font-weight: bold;
+            }
+            .close:hover,
+            .close:focus {
+                color: black;
+                text-decoration: none;
+                cursor: pointer;
+            }
+
+            .hamburger {
+                font-size: 30px;
+                cursor: pointer;
+                padding: 10px;
+            }
+            .sidebar {
+                height: 100%;
+                width: 0;
+                position: fixed;
+                z-index: 2;
+                top: 0;
+                left: 0;
+                background-color: #111;
+                overflow-x: hidden;
+                transition: 0.5s;
+                padding-top: 60px;
+            }
+            .sidebar a {
+                padding: 10px 15px;
+                text-decoration: none;
+                font-size: 25px;
+                color: #818181;
+                display: block;
+                transition: 0.3s;
+            }
+            .sidebar a:hover {
+                color: #f1f1f1;
+            }
+            .closebtn {
+                position: absolute;
+                top: 0;
+                right: 0px;
+                font-size: 36px;
+                margin-left: 50px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="hamburger" onclick="toggleSidebar()">☰</div>
+
+        <div id="mySidebar" class="sidebar">
+            <a href="javascript:void(0)" class="closebtn" onclick="toggleSidebar()">×</a>
+            <a href="/" style="font-size: 20px; color: #f1f1f1;">Home</a>
+            <a href="/carAssignments">carAssignment</a>,
+<a href="/vehiclePerformances">vehiclePerformance</a>,
+<a href="/users">user</a>,
+<a href="/vehicles">vehicle</a>
+            
+        </div>
+        
+        <h1>Assignoperation</h1>
+        <p>CarAssignment</p>
+        <button type="button" class='buttonLabelSearch' onclick="retrieve()">조회</button>
+        <button type="button" class='buttonLabelSave' onclick="save()">저장</button>
+        <button type="button" class='buttonLabelAddRow' onclick="openCarAssignmentDialog()">신규</button>
+        <button type="button" class='buttonLabelDeleteRow' onclick="deleteData()">삭제</button>
+
+        <div>
+            <label for="searchRequesterName">RequesterName:</label>
+            <input type="text" id="searchRequesterName" name="searchRequesterName"><br><br>
+            <label for="searchEmployeeNumber">EmployeeNumber:</label>
+            <input type="text" id="searchEmployeeNumber" name="searchEmployeeNumber"><br><br>
+            <label for="searchApproverPosition">ApproverPosition:</label>
+            <input type="text" id="searchApproverPosition" name="searchApproverPosition"><br><br>
+            <button type="button" onclick="search()">검색</button>
+        </div>
+        <br>
+        <div id="sheet_DIV" style="width:100%;height:500px"></div>
+        <div id="detailSheet_DIV" style="width:100%;height:100%"></div>
+
+        <!-- 등록 Dialog -->
+        <div id="carAssignmentDialog" style="z-index:99;" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeCarAssignmentDialog()">&times;</span>
+                <h2>CarAssignment</h2>
+                <form id="carAssignmentForm">
+                    <label for="id">Id:</label>
+                    <input type="number" id="id" name="id"><br><br>
+                    <label for="requesterName">RequesterName:</label>
+                    <input type="text" id="requesterName" name="requesterName"><br><br>
+                    <label for="organization">Organization:</label>
+                    <input type="text" id="organization" name="organization"><br><br>
+                    <label for="employeeNumber">EmployeeNumber:</label>
+                    <input type="text" id="employeeNumber" name="employeeNumber"><br><br>
+                    <label for="officeNumber">OfficeNumber:</label>
+                    <input type="text" id="officeNumber" name="officeNumber"><br><br>
+                    <label for="mobileNumber">MobileNumber:</label>
+                    <input type="text" id="mobileNumber" name="mobileNumber"><br><br>
+                    <label for="requestDate">RequestDate:</label>
+                    <input type="date" id="requestDate" name="requestDate"><br><br>
+                    <label for="approverInfo">ApproverInfo:</label>
+                    <input type="text" id="approverInfo" name="approverInfo"><br><br>
+                    <label for="approverPosition">ApproverPosition:</label>
+                    <input type="text" id="approverPosition" name="approverPosition"><br><br>
+                    <label for="usagePurpose">UsagePurpose:</label>
+                    <input type="text" id="usagePurpose" name="usagePurpose"><br><br>
+                    <label for="numberOfPassengers">NumberOfPassengers:</label>
+                    <input type="text" id="numberOfPassengers" name="numberOfPassengers"><br><br>
+                    <label for="routeSetting">RouteSetting:</label>
+                    <input type="text" id="routeSetting" name="routeSetting"><br><br>
+                    <label for="remarks">Remarks:</label>
+                    <input type="text" id="remarks" name="remarks"><br><br>
+                    <label for="passengerContact">PassengerContact:</label>
+                    <input type="text" id="passengerContact" name="passengerContact"><br><br>
+                    <label for="attachedDocuments">AttachedDocuments:</label>
+                    <input type="text" id="attachedDocuments" name="attachedDocuments"><br><br>
+                    <label for="cancellationReason">CancellationReason:</label>
+                    <input type="text" id="cancellationReason" name="cancellationReason"><br><br>
+                    <label for="usageCategory">UsageCategory:</label>
+                    <select id="usageCategory" name="usageCategory">
+                        <option value="BusinessSupport">BusinessSupport</option>
+                        <option value="ExternalActivity">ExternalActivity</option>
+                    </select>
+                    <br><br>
+                    <label for="carType">CarType:</label>
+                    <select id="carType" name="carType">
+                        <option value="Sedan">Sedan</option>
+                        <option value="Van">Van</option>
+                        <option value="Truck">Truck</option>
+                    </select>
+                    <br><br>
+                    <label for="mainDepartment">MainDepartment:</label>
+                    <select id="mainDepartment" name="mainDepartment">
+                        <option value="Seoul">Seoul</option>
+                        <option value="Pohang">Pohang</option>
+                        <option value="Gwangyang">Gwangyang</option>
+                    </select>
+                    <br><br>
+                    <label for="operationSection">OperationSection:</label>
+                    <select id="operationSection" name="operationSection">
+                        <option value="City">City</option>
+                        <option value="Suburb">Suburb</option>
+                    </select>
+                    <br><br>
+                    <label for="operationType">OperationType:</label>
+                    <select id="operationType" name="operationType">
+                        <option value="OneWay">OneWay</option>
+                        <option value="RoundTrip">RoundTrip</option>
+                    </select>
+                    <br><br>
+                    <label for="includeDriver">IncludeDriver:</label>
+                    <select id="includeDriver" name="includeDriver">
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                    <br><br>
+                    <label for="progressStage">ProgressStage:</label>
+                    <select id="progressStage" name="progressStage">
+                        <option value="All">All</option>
+                        <option value="Received">Received</option>
+                        <option value="Rejected">Rejected</option>
+                        <option value="AssignmentCompleted">AssignmentCompleted</option>
+                        <option value="AssignmentCancelled">AssignmentCancelled</option>
+                    </select>
+                    <br><br>
+                    <label for="period">Period</label>
+                    <label for="from">From:</label>
+                    <input type="date" id="from" name="from"><br><br>
+                    <label for="to">To:</label>
+                    <input type="date" id="to" name="to"><br><br>
+                    <button type="button" onclick="saveCarAssignment()">Save</button>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            function openCarAssignmentDialog() {
+                openDialog('carAssignment');
+            }
+            function closeCarAssignmentDialog() {
+                closeDialog('carAssignment');
+            }
+
+
+            function toggleSidebar() {
+                const sidebar = document.getElementById("mySidebar");
+                if (sidebar.style.width === "250px") {
+                    sidebar.style.width = "0";
+                } else {
+                    sidebar.style.width = "250px";
+                }
+            }
+            function search() {
+                const searchRequesterName = document.getElementById('searchRequesterName').value;
+                const searchEmployeeNumber = document.getElementById('searchEmployeeNumber').value;
+                const searchApproverPosition = document.getElementById('searchApproverPosition').value;
+
+                const searchParams = {
+                    requesterName: searchRequesterName,
+                    employeeNumber: searchEmployeeNumber,
+                    approverPosition: searchApproverPosition,
+                };
+                searchMultipleResult(searchParams);
+            }
+            function saveCarAssignment(){
+                
+                const data = {
+                    No: document.getElementById('No').value,
+                    requesterName: document.getElementById('requesterName').value,
+                    organization: document.getElementById('organization').value,
+                    employeeNumber: document.getElementById('employeeNumber').value,
+                    officeNumber: document.getElementById('officeNumber').value,
+                    mobileNumber: document.getElementById('mobileNumber').value,
+                    requestDate: document.getElementById('requestDate').value,
+                    approverInfo: document.getElementById('approverInfo').value,
+                    approverPosition: document.getElementById('approverPosition').value,
+                    usagePurpose: document.getElementById('usagePurpose').value,
+                    numberOfPassengers: document.getElementById('numberOfPassengers').value,
+                    routeSetting: document.getElementById('routeSetting').value,
+                    remarks: document.getElementById('remarks').value,
+                    passengerContact: document.getElementById('passengerContact').value,
+                    attachedDocuments: document.getElementById('attachedDocuments').value,
+                    cancellationReason: document.getElementById('cancellationReason').value,
+                    usageCategory: document.getElementById('usageCategory').value,
+                    carType: document.getElementById('carType').value,
+                    mainDepartment: document.getElementById('mainDepartment').value,
+                    operationSection: document.getElementById('operationSection').value,
+                    operationType: document.getElementById('operationType').value,
+                    includeDriver: document.getElementById('includeDriver').value,
+                    progressStage: document.getElementById('progressStage').value,
+                    period: {
+                        from: document.getElementById('from').value,
+                        to: document.getElementById('to').value
+                    }
+                };
+                save(data);
+                closeCarAssignmentDialog();
+            }
+        </script>
+    </body>
+</html>

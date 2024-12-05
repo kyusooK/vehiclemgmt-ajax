@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>VehiclePerformance</title>
+        <script src="/common/plugins/ibsheet8/ibsheet.js"></script>
+        <script src="/common/plugins/ibsheet8/ibleaders.js"></script>
+        <link rel="stylesheet" type="text/css" href="/common/plugins/ibsheet8/css/default/main.css">
+        <script src="/common/plugins/ibsheet8/locale/ko.js"></script>
+        <script src="/common/plugins/jquery-3.4.1.js"></script>
+        <script src="/common/plugins/i18next.min.js"></script>
+        <script src="/common/js/VehiclePerformance.js"></script>
+        <style>
+            .modal {
+                display: none; 
+                position: fixed; 
+                z-index: 1; 
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+                background-color: rgb(0,0,0);
+                background-color: rgba(0,0,0,0.4);
+                padding-top: 60px;
+            }
+            .modal-content {
+                background-color: #fefefe;
+                margin: 5% auto;
+                padding: 20px;
+                border: 1px solid #888;
+                width: 80%;
+            }
+            .close {
+                color: #aaa;
+                float: right;
+                font-size: 28px;
+                font-weight: bold;
+            }
+            .close:hover,
+            .close:focus {
+                color: black;
+                text-decoration: none;
+                cursor: pointer;
+            }
+
+            .hamburger {
+                font-size: 30px;
+                cursor: pointer;
+                padding: 10px;
+            }
+            .sidebar {
+                height: 100%;
+                width: 0;
+                position: fixed;
+                z-index: 2;
+                top: 0;
+                left: 0;
+                background-color: #111;
+                overflow-x: hidden;
+                transition: 0.5s;
+                padding-top: 60px;
+            }
+            .sidebar a {
+                padding: 10px 15px;
+                text-decoration: none;
+                font-size: 25px;
+                color: #818181;
+                display: block;
+                transition: 0.3s;
+            }
+            .sidebar a:hover {
+                color: #f1f1f1;
+            }
+            .closebtn {
+                position: absolute;
+                top: 0;
+                right: 0px;
+                font-size: 36px;
+                margin-left: 50px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="hamburger" onclick="toggleSidebar()">☰</div>
+
+        <div id="mySidebar" class="sidebar">
+            <a href="javascript:void(0)" class="closebtn" onclick="toggleSidebar()">×</a>
+            <a href="/" style="font-size: 20px; color: #f1f1f1;">Home</a>
+            <a href="/carAssignments">carAssignment</a>,
+<a href="/vehiclePerformances">vehiclePerformance</a>,
+<a href="/users">user</a>,
+<a href="/vehicles">vehicle</a>
+            
+        </div>
+        
+        <h1>Assignoperation</h1>
+        <p>VehiclePerformance</p>
+        <button type="button" class='buttonLabelSearch' onclick="retrieve()">조회</button>
+        <button type="button" class='buttonLabelSave' onclick="save()">저장</button>
+        <button type="button" class='buttonLabelAddRow' onclick="openVehiclePerformanceDialog()">신규</button>
+        <button type="button" class='buttonLabelDeleteRow' onclick="deleteData()">삭제</button>
+        <button type="button" onclick="openDialog('registerDrivingLog')">RegisterDrivingLog</button>
+
+        <div id="sheet_DIV" style="width:100%;height:500px"></div>
+        <div id="detailSheet_DIV" style="width:100%;height:100%"></div>
+
+        <!-- 등록 Dialog -->
+        <div id="vehiclePerformanceDialog" style="z-index:99;" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeVehiclePerformanceDialog()">&times;</span>
+                <h2>VehiclePerformance</h2>
+                <form id="vehiclePerformanceForm">
+                    <label for="registrationId">RegistrationId:</label>
+                    <input type="text" id="registrationId" name="registrationId"><br><br>
+                    <label for="vehicleNumber">VehicleNumber:</label>
+                    <input type="text" id="vehicleNumber" name="vehicleNumber"><br><br>
+                    <label for="registrationDate">RegistrationDate:</label>
+                    <input type="date" id="registrationDate" name="registrationDate"><br><br>
+                    <label for="departure">Departure:</label>
+                    <input type="text" id="departure" name="departure"><br><br>
+                    <label for="departureTime">DepartureTime:</label>
+                    <input type="text" id="departureTime" name="departureTime"><br><br>
+                    <label for="accumulatedDistanceBefore">AccumulatedDistanceBefore:</label>
+                    <input type="text" id="accumulatedDistanceBefore" name="accumulatedDistanceBefore"><br><br>
+                    <label for="destination">Destination:</label>
+                    <input type="text" id="destination" name="destination"><br><br>
+                    <label for="arrivalTime">ArrivalTime:</label>
+                    <input type="text" id="arrivalTime" name="arrivalTime"><br><br>
+                    <label for="accumulatedDistanceAfter">AccumulatedDistanceAfter:</label>
+                    <input type="text" id="accumulatedDistanceAfter" name="accumulatedDistanceAfter"><br><br>
+                    <label for="drivingDistance">DrivingDistance:</label>
+                    <input type="number" id="drivingDistance" name="drivingDistance"><br><br>
+                    <label for="purpose">Purpose:</label>
+                    <select id="purpose" name="purpose">
+                        <option value="DepartmentWork">DepartmentWork</option>
+                        <option value="BusinessTrip">BusinessTrip</option>
+                        <option value="Commute">Commute</option>
+                        <option value="Event">Event</option>
+                    </select>
+                    <br><br>
+                    <label for="test">Test:</label>
+                    <select id="test" name="test">
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                    </select>
+                    <br><br>
+                    <label for="period">Period</label>
+                    <label for="from">From:</label>
+                    <input type="date" id="from" name="from"><br><br>
+                    <label for="to">To:</label>
+                    <input type="date" id="to" name="to"><br><br>
+                    <button type="button" onclick="saveVehiclePerformance()">Save</button>
+                </form>
+            </div>
+        </div>
+        <!-- The Modal -->
+        <div id="registerDrivingLog" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeDialog('registerDrivingLog')">&times;</span>
+                <h2>RegisterDrivingLog</h2>
+                <form id="registerDrivingLogForm">
+                    <label for="registrationId">RegistrationId:</label>
+                    <input type="text" id="registrationId" name="registrationId"><br><br>
+                    <label for="vehicleNumber">VehicleNumber:</label>
+                    <input type="text" id="vehicleNumber" name="vehicleNumber"><br><br>
+                    <label for="registrationDate">RegistrationDate:</label>
+                    <input type="date" id="registrationDate" name="registrationDate"><br><br>
+                    <label for="departure">Departure:</label>
+                    <input type="text" id="departure" name="departure"><br><br>
+                    <label for="departureTime">DepartureTime:</label>
+                    <input type="text" id="departureTime" name="departureTime"><br><br>
+                    <label for="accumulatedDistanceBefore">AccumulatedDistanceBefore:</label>
+                    <input type="text" id="accumulatedDistanceBefore" name="accumulatedDistanceBefore"><br><br>
+                    <label for="destination">Destination:</label>
+                    <input type="text" id="destination" name="destination"><br><br>
+                    <label for="arrivalTime">ArrivalTime:</label>
+                    <input type="text" id="arrivalTime" name="arrivalTime"><br><br>
+                    <label for="accumulatedDistanceAfter">AccumulatedDistanceAfter:</label>
+                    <input type="text" id="accumulatedDistanceAfter" name="accumulatedDistanceAfter"><br><br>
+                    <label for="drivingDistance">DrivingDistance:</label>
+                    <input type="number" id="drivingDistance" name="drivingDistance"><br><br>
+                    <label for="purpose">Purpose:</label>
+                    <select id="purpose" name="purpose">
+                        <option value="DepartmentWork">DepartmentWork</option>
+                        <option value="BusinessTrip">BusinessTrip</option>
+                        <option value="Commute">Commute</option>
+                        <option value="Event">Event</option>
+                    </select>
+                    <br><br>
+                    <label for="period">Period</label>
+                    <label for="from">From:</label>
+                    <input type="date" id="from" name="from"><br><br>
+                    <label for="to">To:</label>
+                    <input type="date" id="to" name="to"><br><br>
+                    <br><br>
+                    <button type="button" onclick="registerDrivingLog()">Register</button>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            function openVehiclePerformanceDialog() {
+                openDialog('vehiclePerformance');
+            }
+            function closeVehiclePerformanceDialog() {
+                closeDialog('vehiclePerformance');
+            }
+            function openDialog(id) {
+                document.getElementById(id).style.display = "block";
+            }
+
+            // Function to close the dialog
+            function closeDialog(id) {
+                document.getElementById(id).style.display = "none";
+            }
+
+            function registerDrivingLog() {
+                const registrationId = document.getElementById('registrationId').value;
+                const vehicleNumber = document.getElementById('vehicleNumber').value;
+                const registrationDate = document.getElementById('registrationDate').value;
+                const departure = document.getElementById('departure').value;
+                const departureTime = document.getElementById('departureTime').value;
+                const accumulatedDistanceBefore = document.getElementById('accumulatedDistanceBefore').value;
+                const destination = document.getElementById('destination').value;
+                const arrivalTime = document.getElementById('arrivalTime').value;
+                const accumulatedDistanceAfter = document.getElementById('accumulatedDistanceAfter').value;
+                const drivingDistance = document.getElementById('drivingDistance').value;
+                const purpose = document.getElementById('purpose').value;
+                const period = {
+                    from: document.getElementById('from').value,
+                    to: document.getElementById('to').value,
+                };
+
+                // JSON 객체 생성
+                const data = {
+                    registrationId: registrationId,
+                    vehicleNumber: vehicleNumber,
+                    registrationDate: registrationDate,
+                    departure: departure,
+                    departureTime: departureTime,
+                    accumulatedDistanceBefore: accumulatedDistanceBefore,
+                    destination: destination,
+                    arrivalTime: arrivalTime,
+                    accumulatedDistanceAfter: accumulatedDistanceAfter,
+                    drivingDistance: drivingDistance,
+                    purpose: purpose,
+                    period: period,
+                };
+                submitRegisterDrivingLog(data);
+                closeDialog();
+            }
+
+            function toggleSidebar() {
+                const sidebar = document.getElementById("mySidebar");
+                if (sidebar.style.width === "250px") {
+                    sidebar.style.width = "0";
+                } else {
+                    sidebar.style.width = "250px";
+                }
+            }
+            function saveCarAssignment(){
+                
+                const data = {
+                    No: document.getElementById('No').value,
+                    vehicleNumber: document.getElementById('vehicleNumber').value,
+                    registrationDate: document.getElementById('registrationDate').value,
+                    departure: document.getElementById('departure').value,
+                    departureTime: document.getElementById('departureTime').value,
+                    accumulatedDistanceBefore: document.getElementById('accumulatedDistanceBefore').value,
+                    destination: document.getElementById('destination').value,
+                    arrivalTime: document.getElementById('arrivalTime').value,
+                    accumulatedDistanceAfter: document.getElementById('accumulatedDistanceAfter').value,
+                    drivingDistance: document.getElementById('drivingDistance').value,
+                    purpose: document.getElementById('purpose').value,
+                    period: {
+                        from: document.getElementById('from').value,
+                        to: document.getElementById('to').value
+                    }
+                    test: document.getElementById('test').value,
+                };
+                save(data);
+                closeCarAssignmentDialog();
+            }
+        </script>
+    </body>
+</html>
