@@ -83,15 +83,17 @@ function retrieve(){
     }).then(res => {
         return res.json();
     }).then(json => {
-        json.forEach(row => {
-            row.No = row.id
-        
-                if (row.Period) {
-                    row.from = row.Period.from;
-row.to = row.Period.to
+        for(var i = 0; i < json.length; i++){
+            json[i].No = json[i].id
+            
+                if (json[i].Period) {
+                    json[i].from = json[i].Period.from.split('T')[0];
+json[i].to = json[i].Period.to.split('T')[0]
                 }
                 
-        });
+
+        }
+        
         rowData = json;
         sheet.loadSearchData(json)
     }).catch(error => {
@@ -124,31 +126,31 @@ function save(data){
 
 function saveRow(){
     var rows = sheet.getSaveJson()?.data;
-    rows.forEach(row => {
-        rows.id = rows.No
-        delete rows.No
-    
-                if (row.from && row.to) {
-                    row.Period = {
-                        from: row.from,
-to: row.to
+    for(var i = 0; i < rows.length; i++){
+        rows[i].id = rows[i].No
+        delete rows[i].No
+
+        
+                if (rows[i].from && rows[i].to) {
+                    rows[i].Period = {
+                        from: rows[i].from,
+to: rows[i].to
                     };
-                    delete row.from;
-delete row.to
+                    delete rows[i].from;
+delete rows[i].to
                 }
                 
-    });
+    }
+    
     rowData = rows;
 
     for(var i=0; i<rows.length;i++){
-        if(rows[i].id.includes("AR")){
-            rows[i].id = rows[i].id.replace(/AR/g, "");
-        }
         switch(rows[i].STATUS){
             case "Changed":
                 var rowObj = sheet.getRowById(rows[i].id);
                 var changedData = JSON.parse(sheet.getChangedData(rowObj))["Changes"][0];
-                var id = rows[i].seq;
+                changedData.id = rows[i].id
+                var id = changedData.id 
                 $.ajax({
                     url: `/carAssignments/${id}`,
                     method: "PATCH",
@@ -157,7 +159,7 @@ delete row.to
                 });
                 break;
             case "Deleted":
-                var id = rows[i].seq;
+                var id = rows[i].id
                 $.ajax({
                     url: `/carAssignments/${id}`,
                     method: "DELETE",
@@ -176,7 +178,7 @@ function searchResult(params) {
     const queryParams = new URLSearchParams(params).toString();
 
     $.ajax({
-        url: `https://localhost:8088/carAssignments?${queryParams}`,
+        url: `/carAssignments?${queryParams}`,
         method: 'GET',
         headers: {
             "Cache-Control": "no-cache",

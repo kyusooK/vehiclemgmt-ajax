@@ -60,9 +60,11 @@ function retrieve(){
     }).then(res => {
         return res.json();
     }).then(json => {
-        json.forEach(row => {
-            row.No = row.id
-        });
+        for(var i = 0; i < json.length; i++){
+            json[i].No = json[i].id
+
+        }
+        
         rowData = json;
         sheet.loadSearchData(json)
     }).catch(error => {
@@ -95,21 +97,21 @@ function save(data){
 
 function saveRow(){
     var rows = sheet.getSaveJson()?.data;
-    rows.forEach(row => {
-        rows.id = rows.No
-        delete rows.No
-    });
+    for(var i = 0; i < rows.length; i++){
+        rows[i].id = rows[i].No
+        delete rows[i].No
+
+    }
+    
     rowData = rows;
 
     for(var i=0; i<rows.length;i++){
-        if(rows[i].id.includes("AR")){
-            rows[i].id = rows[i].id.replace(/AR/g, "");
-        }
         switch(rows[i].STATUS){
             case "Changed":
                 var rowObj = sheet.getRowById(rows[i].id);
                 var changedData = JSON.parse(sheet.getChangedData(rowObj))["Changes"][0];
-                var id = rows[i].seq;
+                changedData.id = rows[i].id
+                var id = changedData.id 
                 $.ajax({
                     url: `/users/${id}`,
                     method: "PATCH",
@@ -118,7 +120,7 @@ function saveRow(){
                 });
                 break;
             case "Deleted":
-                var id = rows[i].seq;
+                var id = rows[i].id
                 $.ajax({
                     url: `/users/${id}`,
                     method: "DELETE",
